@@ -1,142 +1,119 @@
-<!doctype html>
- <html lang="en">
-   <head>
-     <title>Acessibility Helper</title>
-     <!--
-       This styling is for the Web Chat demonstration purposes.
-       It is recommended that style is moved to a separate file for organization in larger projects.
-
-       Please visit https://github.com/microsoft/BotFramework-WebChat for details about Web Chat.
-     -->
-     <style>
-       html,
-       body {
-         height: 100%;
-       }
-
-       body {
-         margin: 0;
-       }
-
-       h1 {
-         color: whitesmoke;
-         font-family: Segoe UI;
-         font-size: 16px;
-         line-height: 20px;
-         margin: 0;
-         padding: 0 20px;
-       }
-
-       #banner {
-         align-items: center;
-         background-color: black;
-         display: flex;
-         height: 50px;
-       }
-
-       #webchat {
-         height: calc(100% - 50px);
-         overflow: hidden;
-         position: fixed;
-         top: 50px;
-         width: 100%;
-       }
-     </style>
-   </head>
-   <body>
-     <div>
-       <div id="banner">
-         <h1>Accessibility Helper</h1>
-       </div>
-       <div id="webchat" role="main"></div>
-     </div>
-
-     <!--
-       In this sample, the latest version of Web Chat is being used.
-       In production environment, the version number should be pinned and version bump should be done frequently.
-
-       Please visit https://github.com/microsoft/BotFramework-WebChat/tree/main/CHANGELOG.md for changelog.
-     -->
-     <script crossorigin="anonymous" src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
-
-     <script>
-       (async function () {
-         // Specifies style options to customize the Web Chat canvas.
-         // Please visit https://microsoft.github.io/BotFramework-WebChat for customization samples.
-         const styleOptions = {
-           // Hide upload button.
-           hideUploadButton: true
-         };
-
-         // Specifies the token endpoint URL.
-         // To get this value, visit Copilot Studio > Settings > Channels > Mobile app page.
-         const tokenEndpointURL = new URL('https://default776f166f15c242b1941e652a798692.75.environment.api.powerplatform.com/powervirtualagents/botsbyschema/Default_copilot/directline/token?api-version=2022-03-01-preview');
-
-         // Specifies the language the copilot and Web Chat should display in:
-         // - (Recommended) To match the page language, set it to document.documentElement.lang
-         // - To use current user language, set it to navigator.language with a fallback language
-         // - To use another language, set it to supported Unicode locale
-
-         // Setting page language is highly recommended.
-         // When page language is set, browsers will use native font for the respective language.
-
-         const locale = document.documentElement.lang || 'en'; // Uses language specified in <html> element and fallback to English (United States).
-         // const locale = navigator.language || 'ja-JP'; // Uses user preferred language and fallback to Japanese.
-         // const locale = 'zh-HAnt'; // Always use Chinese (Traditional).
-
-         const apiVersion = tokenEndpointURL.searchParams.get('api-version');
-
-         const [directLineURL, token] = await Promise.all([
-           fetch(new URL(`/powervirtualagents/regionalchannelsettings?api-version=${apiVersion}`, tokenEndpointURL))
-             .then(response => {
-               if (!response.ok) {
-                 throw new Error('Failed to retrieve regional channel settings.');
-               }
-
-               return response.json();
-             })
-             .then(({ channelUrlsById: { directline } }) => directline),
-           fetch(tokenEndpointURL)
-             .then(response => {
-               if (!response.ok) {
-                 throw new Error('Failed to retrieve Direct Line token.');
-               }
-
-               return response.json();
-             })
-             .then(({ token }) => token)
-         ]);
-
-         // The "token" variable is the credentials for accessing the current conversation.
-         // To maintain conversation across page navigation, save and reuse the token.
-
-         // The token could have access to sensitive information about the user.
-         // It must be treated like user password.
-
-         const directLine = WebChat.createDirectLine({ domain: new URL('v3/directline', directLineURL), token });
-
-         // Sends "startConversation" event when the connection is established.
-
-         const subscription = directLine.connectionStatus$.subscribe({
-           next(value) {
-             if (value === 2) {
-               directLine
-                 .postActivity({
-                   localTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                   locale,
-                   name: 'startConversation',
-                   type: 'event'
-                 })
-                 .subscribe();
-
-               // Only send the event once, unsubscribe after the event is sent.
-               subscription.unsubscribe();
-             }
-           }
-         });
-
-         WebChat.renderWebChat({ directLine, locale, styleOptions }, document.getElementById('webchat'));
-       })();
-     </script>
-   </body>
- </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copilot - Your Accessibility Passport</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f4f8;
+        }
+        .header {
+            background-image: linear-gradient(to right, #a0d7e7, #c1e6d3);
+            padding: 20px;
+            text-align: right;
+        }
+        .logo {
+            max-width: 100px;
+        }
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .nav-item {
+            padding: 5px 15px;
+            border-radius: 20px;
+            background-color: #e0e0e0;
+        }
+        .nav-item.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 0 20px;
+        }
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .footer {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .input-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="/placeholder.svg?height=50&width=100" alt="Copilot Logo" class="logo">
+    </div>
+    <h1 style="text-align: center;">Your Accessibility Passport</h1>
+    <nav class="nav">
+        <span class="nav-item active">All Users</span>
+        <span class="nav-item">Product Manager</span>
+        <span class="nav-item">Content Creator</span>
+        <span class="nav-item">Designer</span>
+        <span class="nav-item">Developer</span>
+        <span class="nav-item">Tester</span>
+    </nav>
+    <div class="content">
+        <div class="card">
+            <div class="card-title">Discover new tools</div>
+            <p>Find tools filtered by your key usability preferences, shortcuts, and interests</p>
+        </div>
+        <div class="card">
+            <div class="card-title">Product Features</div>
+            <p>Learn about the product features that can empower you to do your best work</p>
+        </div>
+        <div class="card">
+            <div class="card-title">Share feedback</div>
+            <p>Help make your community stronger by sharing your feedback on our product suite</p>
+        </div>
+        <div class="card">
+            <div class="card-title">Review files</div>
+            <p>List key action items from file based off your a11y selections</p>
+        </div>
+        <div class="card">
+            <div class="card-title">Top of mind</div>
+            <p>Review today's top-of-mind based off your recent chats and meetings</p>
+        </div>
+        <div class="card">
+            <div class="card-title">Draft messages</div>
+            <p>Help me send a ping to person sharing my productivity preferences</p>
+        </div>
+    </div>
+    <div class="footer">
+        <button>View my accessibility passport</button>
+    </div>
+    <div class="input-container">
+        <!DOCTYPE html><html><body><iframe src="https://web.powerva.microsoft.com/environments/Default-776f166f-15c2-42b1-941e-652a79869275/bots/Default_copilot/webchat?__version__=2" frameborder="0" style="width: 100%; height: 100%;"></iframe></body></html>
+    </div>
+</body>
+</html>
